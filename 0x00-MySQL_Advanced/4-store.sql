@@ -7,10 +7,10 @@ DELIMITER $$
 CREATE TRIGGER item_sold
 	AFTER INSERT
 	ON orders FOR EACH ROW -- run after an insert statement on orders table
-BEGIN
+BEGIN -- start computations
 	UPDATE items -- update items table
 	SET quantity = quantity - NEW.number -- subtract number of orders from qtty
 	-- from the newly added order name
 	WHERE name = NEW.item_name;
-END $$
+END $$ -- end computations
 DELIMITER ; -- disable newly set delimiter
