@@ -9,5 +9,5 @@ SET quantity = quantity - NEW.number -- subtract number of orders from qtty
 WHERE name = NEW.item_name;
 -- from the newly added order name
 END $$
-DELIMITER;
+DELIMITER ;
 -- disable newly set delimiter
