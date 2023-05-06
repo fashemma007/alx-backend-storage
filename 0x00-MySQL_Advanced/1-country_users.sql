@@ -1,8 +1,14 @@
--- This SQL script creates the 'users' table with 'id', 'email', 'name' and 'country' columns. 'id' is the primary key, auto-increment, 'email' is unique and not null. 'name' is not null and 'country' is not null, default value is 'US' and it only accept 'US', 'CO' or 'TN' as value. The script will first check if table already exists and drop it if it does, before creating a new table.
+-- This SQL script creates the 'users' table with 'id', 'email' and 'name' columns, where 'id' is the primary key and auto-increment,
+-- drop table to ensure schema is correct
 DROP TABLE IF EXISTS users;
+-- create the users table
 CREATE TABLE users (
+    -- with autogen int id column
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    -- unique emails for each entry
     email VARCHAR(255) NOT NULL UNIQUE,
+    -- name of max-length 255
     name VARCHAR(255),
-    country CHAR(2) NOT NULL DEFAULT 'US' CHECK (country IN ('US', 'CO', 'TN'))
+    -- enum column with first element as default value
+    country ENUM('US', 'CO', 'TN') NOT NULL DEFAULT 'US'
 );
