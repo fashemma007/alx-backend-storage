@@ -1,1 +1,2 @@
+// get all datasets within the collection named school
 db.school.find()

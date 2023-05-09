@@ -1,1 +1,2 @@
+// use an existing db OR create it if not
 use my_db

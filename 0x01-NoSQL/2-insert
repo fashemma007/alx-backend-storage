@@ -1,1 +1,2 @@
+// create data within a collection named `school`
 db.school.insert({"name": "Holberton school"})
