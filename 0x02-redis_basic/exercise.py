@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Cache class module"""
-from typing import Union
+from typing import Optional, Union
 from uuid import uuid4
 import redis
 
@@ -24,3 +24,30 @@ class Cache:
         uuid_key = str(uuid4())  # generate a random key
         self._redis.set(uuid_key, data)  # store data in redis using uuid-key
         return uuid_key
+
+    def get(self, key: str,
+            fn: Optional[callable] = None) -> Union[str, bytes, int, float]:
+        """
+        take a `key` string argument and an optional `Callable` argument named
+        `fn` that will be used to convert the data back to the desired format
+        """
+        value = self._redis.get(key)
+        if fn:
+            value = fn(value)
+        return value
+
+    def get_str(self, key: str) -> str:
+        """automatically parametrize Cache.get with the correct
+        conversion function"""
+        value = self._redis.get(key)
+        return value.decode("utf-8")
+
+    def get_int(self, key: str) -> int:
+        """automatically parametrize Cache.get with the correct
+        conversion function"""
+        value = self._redis.get(key)
+        try:
+            value = int(value.decode("utf-8"))
+        except ValueError:
+            value = 0
+        return value
