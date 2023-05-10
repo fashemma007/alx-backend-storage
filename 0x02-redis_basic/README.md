@@ -1,6 +1,6 @@
 <h1 style="text-align: center;">
-	<a href='https://intranet.alxswe.com/projects/1233'>
-		NoSQL
+	<a href='https://intranet.alxswe.com/projects/1234#task-11668'>
+		REDIS 
 	</a>
 </h1>
 
