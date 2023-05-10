@@ -1,8 +1,23 @@
 #!/usr/bin/env python3
 """Cache class module"""
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 from uuid import uuid4
+from functools import wraps
 import redis
+
+
+def count_calls(method: Callable) -> Callable:
+    """decorator func that returns a Callable"""
+    key = method.__qualname__  # sets the method's name as redis key
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """wrapper for decorated function"""
+        # increases the value each time the func is called
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+
+    return wrapper
 
 
 class Cache:
@@ -12,6 +27,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         The store function takes in a string, bytes, int or float and stores it
