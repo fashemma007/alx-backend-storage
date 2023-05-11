@@ -6,29 +6,29 @@ from functools import wraps
 import redis
 
 
-def count_calls(method: Callable) -> Callable:
+def count_calls(funcshun: Callable) -> Callable:
     """decorator func that returns a Callable"""
-    key = method.__qualname__  # sets the method's name as redis key
+    key = funcshun.__qualname__  # sets the function's name as redis key
 
-    @wraps(method)
+    @wraps(funcshun)
     def wrapper(self, *args, **kwargs):
         """wrapper for decorated function"""
         # increases the value each time the func is called
         self._redis.incr(key)
-        return method(self, *args, **kwargs)
+        return funcshun(self, *args, **kwargs)
 
     return wrapper
 
 
-def call_history(method: Callable) -> Callable:
+def call_history(funcshun: Callable) -> Callable:
     """store the history of inputs and outputs"""
-    @wraps(method)
+    @wraps(funcshun)
     def wrapper(self, *args, **kwargs):
         """wrapper for the decorated function"""
         input = str(args)
-        self._redis.rpush(method.__qualname__ + ":inputs", input)
-        output = str(method(self, *args, **kwargs))
-        self._redis.rpush(method.__qualname__ + ":outputs", output)
+        self._redis.rpush(funcshun.__qualname__ + ":inputs", input)
+        output = str(funcshun(self, *args, **kwargs))
+        self._redis.rpush(funcshun.__qualname__ + ":outputs", output)
         return output
 
     return wrapper
@@ -74,6 +74,7 @@ class Cache:
         self._redis.flushdb()
 
     @count_calls
+    @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         The store function takes in a string, bytes, int or float and stores it
