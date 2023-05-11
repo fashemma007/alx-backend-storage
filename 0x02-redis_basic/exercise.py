@@ -46,19 +46,25 @@ def replay(fn: Callable):
     """display the history of calls of a particular function"""
     r = redis.Redis()
     function_name = fn.__qualname__
-    value = r.get(function_name)
+    # print(function_name)
+    value = r.get(function_name)  # get the number of times twas called
+    # print(value)
     try:
         value = int(value.decode("utf-8"))
     except UnicodeDecodeError:
         value = 0
     except ValueError:
         value = 0
-
     print("{} was called {} times:".format(function_name, value))
+
     inputs = r.lrange("{}:inputs".format(function_name), 0, -1)
 
     outputs = r.lrange("{}:outputs".format(function_name), 0, -1)
+    # abc = zip(inputs, outputs)
+    # for a, b in abc:
+    #     print(a, b)
 
+    # since all values are byte-encoded, we av to decode to utf-8
     for input, output in zip(inputs, outputs):
         try:
             input = input.decode("utf-8")
@@ -90,7 +96,6 @@ class Cache:
 
         data: variable data to be stored
         return: It returns the key that was used to store the data.
-
         """
         uuid_key = str(uuid4())  # generate a random key
         self._redis.set(uuid_key, data)  # store data in redis using uuid-key
