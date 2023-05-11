@@ -6,30 +6,38 @@ from functools import wraps
 import redis
 
 
-def count_calls(funcshun: Callable) -> Callable:
+def count_calls(method: Callable) -> Callable:
     """decorator func that returns a Callable"""
-    key = funcshun.__qualname__  # sets the function's name as redis key
+    key = method.__qualname__  # sets the function's name as redis key
 
-    @wraps(funcshun)
+    @wraps(method)
     def wrapper(self, *args, **kwargs):
         """wrapper for decorated function"""
         # increases the value each time the func is called
         self._redis.incr(key)
-        return funcshun(self, *args, **kwargs)
+        return method(self, *args, **kwargs)
 
     return wrapper
 
 
-def call_history(funcshun: Callable) -> Callable:
+def call_history(method: Callable) -> Callable:
     """store the history of inputs and outputs"""
-    @wraps(funcshun)
+    @wraps(method)
     def wrapper(self, *args, **kwargs):
         """wrapper for the decorated function"""
-        input = str(args)
-        self._redis.rpush(funcshun.__qualname__ + ":inputs", input)
-        output = str(funcshun(self, *args, **kwargs))
-        self._redis.rpush(funcshun.__qualname__ + ":outputs", output)
-        return output
+        inputs = str(args)  # stringify passed in arguments
+        # stringify return value
+        outputs = str(method(self, *args, **kwargs))
+
+        # create a key with list as values using rpush
+        # method.__qualname__ returns the name of the called func / method
+        # and appends :inputs to it e.g `Cache.store:inputs`
+
+        # append functions return to redis list `Cache.store:inputs`
+        self._redis.rpush(method.__qualname__ + ":inputs", inputs)
+        # append functions return to redis list `Cache.store:outputs`
+        self._redis.rpush(method.__qualname__ + ":outputs", outputs)
+        return outputs
 
     return wrapper
 
